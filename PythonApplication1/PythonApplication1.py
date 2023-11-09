@@ -1,5 +1,8 @@
+import itertools
 from math import trunc
-import math
+from time import perf_counter
+from itertools import filterfalse
+import mymodule
 
 #Функция обработчик ввода
 def input_func(a):
@@ -8,7 +11,7 @@ def input_func(a):
         try:
             #Проверка на число или строку с помощью перехвата исключения
             float(a)
-            
+            a = str(a)
             #Проверка является ли число десятичным или целочисленным
             if a.isdigit() is False:
                 a = float(a)
@@ -21,35 +24,15 @@ def input_func(a):
         except:
             #Разделение строки на отдельные символы
             a = list(a)
-            b=len(a)
-            
-            #Вложенные циклы, которые позволяют проверить строку на соответсвие нужным данным
-            for i in range(b):
-                for j in range(b):
-                    #Проверка на вхождение в английский алфавит и маленькие буквы
-                    if 'a' <= a[j] <= "z":
-                        #Проверка на согласные и гласные буквы
-                        if a[j]=='a' or a[j]=='e' or a[j]=='i' or a[j]=='o' or a[j]=='u':
-                            print(a[j],"- this isn't consonant letter")
-                            a.pop(j)
-                            b=len(a)
-                            break   
-                        else:
-                            if a[j].isupper():
-                                print(a[j],"- this is up register")
-                                a.pop(j)
-                                b=len(a)
-                                break
-                    else:
-                        print(a[j],"- this is not english word or up register")
-                        a.pop(j)
-                        b=len(a)
-                        break
+            #Сортировка маленьких английских букв
+            a = list(filterfalse(lambda x: x <= 'a' or x >= 'z', a))
+            #Сортировка английских согласных букв
+            a = "".join(list(filterfalse(lambda x: x=='a' or x=='e' or x=='i' or x=='o' or x=='u',a)))
+            b = len(a)
             #Проверка на то, что строка не отсталась пустой
             if b==0:
                 return None
-            #Объединение и возвращение строки
-            return "".join(a)
+            return a
     else:
         print("Empty string.\n")
         return None
@@ -58,7 +41,11 @@ def input_func(a):
 #Функция декоратор
 def decorator_func(function): 
     def wrapper(spisok):
+        #Начало подсчёта времени
+        t_start = perf_counter()
         a = function(spisok)
+        #Вычисление итогового времени выполнения функции
+        t_end = perf_counter() - t_start
         #Проверка на то, что числа былы введены и минимум нашёлся
         if a[0]!=10**10:
             print("\n",a[0],"- minimal value\n")
@@ -71,11 +58,11 @@ def decorator_func(function):
         else:
             print("\nNot strings in list\n")
         
-        #Подсчёт количества положительных чисел. В моих условиях достаточно подсчитать просто кол-во чисел
+        #Усечение всех дробных чисел до целочисленных значений и заполнение списка для их выведения
         sps = []
         for i in range(len(spisok)):
             if type(spisok[i]) is float:
-                spisok[i]= math.trunc(spisok[i])
+                sps.append(trunc(spisok[i]))
         if len(sps):
             print("\nPositive truncated numbers: ",sps)
         #Замена в каждой строке на заглавную всех букв, кроме 3-ей
@@ -96,12 +83,13 @@ def decorator_func(function):
                 sps.append(r)
         if len(sps)!=0:
             print("\nThis is work with string: ",sps)
+        print("\nExecution time of the calculator function", t_end, "\n")
         return a
     return wrapper
 
 
 @decorator_func
-def calculate(spisok):
+def calculator(spisok):
     #Переменная minimum нужна для поиска наименьшего числа, а lenght для подсчёта количества пропущенных букв
     minimum = 10**10
     lenght = 0
@@ -112,9 +100,6 @@ def calculate(spisok):
             if i<minimum:
                 minimum=i
     return minimum, lenght
-    
-
-
 
 
 #Ввод пользователем данных
@@ -122,14 +107,30 @@ spisok=[]
 while 1:
     print("Enter: ")
     a = input()
-    #Если пользователь ввёл команду "end", то ввод прекращается и вызывается функция декоратор
+    #Если пользователь ввёл команду "end", то ввод прекращается и вызывается функция вычислитель
     if a=="end":
-        calculate(spisok)
+        calculator(spisok)
         break
     a = input_func(a)
     #Если функция обработчик не возвращает None, то мы добавляем новое значение в список
     if a != None:
         spisok.append(a)
-            
+
+
+help(mymodule)
+
+
+rand_sp = []
+for i in range(5):
+    rand_sp.append(mymodule.rand1(46,87))
+    rand_sp.append(mymodule.rand2(4,85,4))
+print(rand_sp)
+
+rand_sp_fin = []
+for i in rand_sp:
+    rand_sp_fin.append(input_func(i))
+print(rand_sp)
+    
+    
 
     
